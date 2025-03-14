@@ -2,6 +2,7 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.ProductOptionType;
 import com.thanglv.broadleafstore.repository.ProductOptionTypeRepository;
+import com.thanglv.broadleafstore.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/product-option-types")
+@RequestMapping("/api/v1/product-option-types")
 @RequiredArgsConstructor
 public class ProductOptionTypeController {
 

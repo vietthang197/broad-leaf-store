@@ -2,6 +2,7 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.Product;
 import com.thanglv.broadleafstore.repository.ProductRepository;
+import com.thanglv.broadleafstore.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
 
