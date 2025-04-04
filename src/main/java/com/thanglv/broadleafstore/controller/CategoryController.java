@@ -2,12 +2,10 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.Category;
 import com.thanglv.broadleafstore.repository.CategoryRepository;
-import com.thanglv.broadleafstore.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController

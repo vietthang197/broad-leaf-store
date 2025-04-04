@@ -1,45 +1,42 @@
 package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.*;
-import com.thanglv.broadleafstore.repository.CategoryRepository;
-import com.thanglv.broadleafstore.repository.ProductOptionTypeRepository;
-import com.thanglv.broadleafstore.repository.ProductRepository;
-import com.thanglv.broadleafstore.repository.ProductVariantRepository;
-import com.thanglv.broadleafstore.util.Constant;
+import com.thanglv.broadleafstore.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductRepository repository;
     private final CategoryRepository categoryRepository;
     private final ProductVariantRepository productVariantRepository;
     private final ProductRepository productRepository;
     private final ProductOptionTypeRepository productOptionTypeRepository;
+    private final ProductVariantOptionRepository productVariantOptionRepository;
+    private final ProductOptionValueRepository productOptionValueRepository;
 
     @GetMapping
     public List<Product> getAll() {
-        return repository.findAll();
+        return productRepository.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getById(@PathVariable String id) {
-        return repository.findById(id)
+        return productRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
+    @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Product> create(@RequestBody Product request) {
 
         Optional<Category> categoryOptional = categoryRepository.findById(request.getCategory().getId());
@@ -59,22 +56,26 @@ public class ProductController {
                 .category(category)
                 .productType(request.getProductType())
                 .attributes(request.getAttributes())
+                .sku(request.getSku())
+                .productType(request.getProductType())
                 .build();
 
         if (CollectionUtils.isNotEmpty(request.getVariantOptions())) {
-            Set<Product.VariantOption> variantOptionSet = new HashSet<>();
-            for (Product.VariantOption variantOptionRequest : request.getVariantOptions()) {
-                Product.VariantOption variantOption = new Product.VariantOption();
+            Set<ProductVariantOption> variantOptionSet = new HashSet<>();
+            for (ProductVariantOption variantOptionRequest : request.getVariantOptions()) {
+                ProductVariantOption variantOption = new ProductVariantOption();
                 variantOption.setName(variantOptionRequest.getName());
                 variantOption.setOptionLabel(variantOptionRequest.getOptionLabel());
-                variantOption.setAllowValues(variantOptionRequest.getAllowValues());
+                variantOption.setAllowValues(new HashSet<>(productOptionValueRepository.saveAll(variantOptionRequest.getAllowValues())));
                 Optional<ProductOptionType> productOptionTypeOptional = productOptionTypeRepository.findById(variantOptionRequest.getOptionType().getId());
                 if (productOptionTypeOptional.isEmpty()) {
                     throw new RuntimeException("Product option type not found");
                 }
                 variantOption.setOptionType(productOptionTypeOptional.get());
+
                 variantOptionSet.add(variantOption);
             }
+            variantOptionSet = new HashSet<>(productVariantOptionRepository.saveAll(variantOptionSet));
             product.setVariantOptions(variantOptionSet);
         }
 
@@ -95,26 +96,26 @@ public class ProductController {
             product.setVariants(savedProductVariant);
         }
 
-        Product saved = repository.save(product);
+        Product saved = productRepository.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Product> update(@PathVariable String id, @RequestBody Product product) {
-        if (!repository.existsById(id)) {
+        if (!productRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
         product.setId(id);
-        Product updated = repository.save(product);
+        Product updated = productRepository.save(product);
         return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        if (!repository.existsById(id)) {
+        if (!productRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-        repository.deleteById(id);
+        productRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

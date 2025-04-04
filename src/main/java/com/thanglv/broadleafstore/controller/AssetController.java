@@ -4,7 +4,6 @@ import com.thanglv.broadleafstore.dto.AssetsDto;
 import com.thanglv.broadleafstore.dto.BaseResponse;
 import com.thanglv.broadleafstore.request.FileUploadRequest;
 import com.thanglv.broadleafstore.services.AssetService;
-import com.thanglv.broadleafstore.util.Constant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

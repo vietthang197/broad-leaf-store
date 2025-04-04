@@ -11,6 +11,9 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @AllArgsConstructor
 @Data
 public class ProductOptionValue {
+
+    @MongoId
+    private String id;
     private String value;
     private String label;
     private Integer order;

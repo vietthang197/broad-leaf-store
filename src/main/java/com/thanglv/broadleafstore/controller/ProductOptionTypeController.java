@@ -2,7 +2,6 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.ProductOptionType;
 import com.thanglv.broadleafstore.repository.ProductOptionTypeRepository;
-import com.thanglv.broadleafstore.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -8,22 +8,24 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.util.Set;
+
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class ProductAssets {
+public class ProductVariantOption {
 
     @MongoId
     private String id;
 
+    @Indexed(unique = true)
+    private String name;
+    private String optionLabel;
+
     @DBRef
-    @Indexed
-    private Asset asset;
+    private ProductOptionType optionType;
 
-    private String type;
-
-    private Boolean isPrimary;
-
-    private Boolean isDeleted;
+    @DBRef
+    private Set<ProductOptionValue> allowValues;
 }
