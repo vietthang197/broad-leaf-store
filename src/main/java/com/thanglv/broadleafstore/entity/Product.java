@@ -1,9 +1,7 @@
 package com.thanglv.broadleafstore.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.thanglv.broadleafstore.dto.ProductAttribute;
+import lombok.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -11,13 +9,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Builder
 public class Product {
 
@@ -43,7 +43,7 @@ public class Product {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private ProductTypeEnum productType;
-    private Map<String, String> attributes;
+    private List<ProductAttribute> attributes;
 
     @Indexed
     @DBRef
