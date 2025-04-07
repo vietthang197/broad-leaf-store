@@ -1,5 +1,6 @@
 package com.thanglv.broadleafstore.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.thanglv.broadleafstore.dto.ProductAttribute;
 import com.thanglv.broadleafstore.entity.*;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateProductRequest {
     private String sku;
     private String name;

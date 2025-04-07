@@ -2,11 +2,14 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.Category;
 import com.thanglv.broadleafstore.repository.CategoryRepository;
+import com.thanglv.broadleafstore.request.CreateCategoryRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -28,7 +31,20 @@ public class CategoryController {
     }
 
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
+    public Category createCategory(@RequestBody CreateCategoryRequest request) {
+        Category category = new Category();
+        category.setName(request.getName());
+        category.setSlug(request.getSlug());
+        category.setDescription(request.getDescription());
+
+        if (Strings.isNotBlank(request.getParentCategoryId())) {
+            Optional<Category> parentCategoryOptional = categoryRepository.findById(request.getParentCategoryId());
+            if (parentCategoryOptional.isPresent()) {
+                category.setParentCategoryId(parentCategoryOptional.get().getId());
+            } else {
+                throw new RuntimeException("Parent category not found");
+            }
+        }
         return categoryRepository.save(category);
     }
 
