@@ -43,12 +43,12 @@ public class ProductController {
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<Product> create(@RequestBody CreateProductRequest request) {
 
-        Optional<Category> categoryOptional = categoryRepository.findById(request.getCategory());
+        var categoryOptional = categoryRepository.findById(request.getCategory());
         if (categoryOptional.isEmpty())
             throw new RuntimeException("Category not found");
         Category category = categoryOptional.get();
 
-        Product product = Product.builder()
+        var product = Product.builder()
                 .name(request.getName())
                 .slug(request.getSlug())
                 .description(request.getDescription())
@@ -85,7 +85,7 @@ public class ProductController {
 
                     List<ProductOptionValue> savedProductOptionValue = productOptionValueRepository.saveAll(productOptionValueSet);
                     variantOption.setAllowValues(new HashSet<>(savedProductOptionValue));
-                    Optional<ProductOptionType> productOptionTypeOptional = productOptionTypeRepository.findById(variantOptionRequest.getProductOptionTypeId());
+                    var productOptionTypeOptional = productOptionTypeRepository.findById(variantOptionRequest.getProductOptionTypeId());
                     if (productOptionTypeOptional.isEmpty()) {
                         throw new RuntimeException("Product option type not found");
                     }
@@ -99,7 +99,7 @@ public class ProductController {
 
             Set<ProductVariant> productVariantList = new HashSet<>();
             for (CreateProductVariantRequest variantRequest : request.getVariants()) {
-                ProductVariant productVariant = ProductVariant.builder()
+                var productVariant = ProductVariant.builder()
                         .name(variantRequest.getName())
                         .attributes(variantRequest.getAttributes())
                         .optionValues(
@@ -118,7 +118,7 @@ public class ProductController {
                         .build();
                 productVariantList.add(productVariant);
             }
-            Set<ProductVariant> savedProductVariant = new HashSet<>(productVariantRepository.saveAll(productVariantList));
+            var savedProductVariant = new HashSet<>(productVariantRepository.saveAll(productVariantList));
             product.setVariants(savedProductVariant);
         }
 
