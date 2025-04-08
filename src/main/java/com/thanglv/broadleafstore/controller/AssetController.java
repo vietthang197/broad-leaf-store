@@ -33,7 +33,6 @@ public class AssetController {
                     )
             )
     )
-    @CrossOrigin(value = "*")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<BaseResponse<AssetsDto>> uploadAssets(@ModelAttribute @Valid FileUploadRequest fileUploadRequest) throws IOException {
         return ResponseEntity.ok(assetService.uploadAssets(fileUploadRequest));
