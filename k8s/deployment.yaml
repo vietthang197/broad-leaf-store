@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broad-leaf-store
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broad-leaf-store
+  template:
+    metadata:
+      labels:
+        app: broad-leaf-store
+    spec:
+      containers:
+        - name: broad-leaf-store
+          image: registrydocker.devto.shop/broad-leaf-store:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8888
+          resources:
+            limits:
+              memory: "4096Mi"
+              cpu: "2000m"
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broad-leaf-store-service
+spec:
+  type: NodePort
+  selector:
+    app: broad-leaf-store
+  ports:
+    - port: 80
+      targetPort: 8888
+      nodePort: 30030
+  sessionAffinity: None  # Đảm bảo không giữ phiên để load balancing hoạt động đúng
+  externalTrafficPolicy: Local
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: broad-leaf-store-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/load-balance: "round_robin"
+    # Forward IP configurations
+    nginx.ingress.kubernetes.io/use-forwarded-headers: "true"
+    nginx.ingress.kubernetes.io/proxy-real-ip-cidr: "0.0.0.0/0"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header X-Forwarded-Host $host;
+spec:
+  rules:
+    - host: app.194.233.70.185.nip.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: broad-leaf-store-service
+                port:
+                  number: 80
