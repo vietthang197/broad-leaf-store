@@ -18,8 +18,6 @@ public class ProductAssets {
     @Id
     private String id;
 
-    private String productId;
-
     @DocumentReference
     @Indexed
     private Asset asset;
