@@ -2,10 +2,12 @@ package com.thanglv.broadleafstore.entity;
 
 import com.thanglv.broadleafstore.dto.ProductAttribute;
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.LocalDateTime;
@@ -21,7 +23,7 @@ import java.util.Set;
 @Builder
 public class Product {
 
-    @MongoId
+    @Id
     private String id;
 
     @TextIndexed
@@ -38,7 +40,7 @@ public class Product {
     private Integer quantity;
 
     @Indexed
-    @DBRef
+    @DocumentReference
     private Category category;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -46,15 +48,19 @@ public class Product {
     private List<ProductAttribute> attributes;
 
     @Indexed
-    @DBRef
+    @DocumentReference
     private Set<ProductVariant> variants;
 
-    @DBRef
+    @DocumentReference
     private Set<ProductVariantOption> variantOptions;
 
     private String sku;
 
     @Indexed
-    @DBRef
-    private Set<ProductAssets> productAssets;
+    @DocumentReference
+    private ProductAssets primaryAsset;
+
+    @Indexed
+    @DocumentReference
+    private List<ProductAssets> additionalAssets;
 }

@@ -2,6 +2,7 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.*;
 import com.thanglv.broadleafstore.repository.*;
+import com.thanglv.broadleafstore.request.CreateProductAssetRequest;
 import com.thanglv.broadleafstore.request.CreateProductRequest;
 import com.thanglv.broadleafstore.request.CreateProductVariantOptionRequest;
 import com.thanglv.broadleafstore.request.CreateProductVariantRequest;
@@ -12,12 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
+@CrossOrigin(originPatterns = {"*"}, allowCredentials = "true", allowedHeaders = "*")
 public class ProductController {
 
     private final CategoryRepository categoryRepository;
@@ -26,10 +29,12 @@ public class ProductController {
     private final ProductOptionTypeRepository productOptionTypeRepository;
     private final ProductVariantOptionRepository productVariantOptionRepository;
     private final ProductOptionValueRepository productOptionValueRepository;
+    private final AssetRepository assetRepository;
+    private final ProductAssetsRepository productAssetsRepository;
 
     @GetMapping
     public List<Product> getAll() {
-        return productRepository.findAll();
+        return productRepository.findAllByOrderByCreatedAtDesc();
     }
 
     @GetMapping("/{id}")
@@ -61,6 +66,7 @@ public class ProductController {
                 .productType(ProductTypeEnum.valueOf(request.getProductType()))
                 .attributes(request.getAttributes())
                 .sku(request.getSku())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         if (ProductTypeEnum.VARIANT.equals(ProductTypeEnum.valueOf(request.getProductType()))) {
@@ -122,8 +128,45 @@ public class ProductController {
             product.setVariants(savedProductVariant);
         }
 
-        Product saved = productRepository.save(product);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+
+        if (CollectionUtils.isNotEmpty(request.getAdditionalAssets())) {
+            Set<CreateProductAssetRequest> assetRequests = request.getAdditionalAssets();
+            List<ProductAssets> productAssetsList = new ArrayList<>();
+            for (CreateProductAssetRequest assetRequest : assetRequests) {
+                Optional<Asset> assetOptional = assetRepository.findById(assetRequest.getId());
+                if (assetOptional.isEmpty()) {
+                    throw new RuntimeException("Asset not found with id " + assetRequest.getId());
+                }
+                var asset = assetOptional.get();
+                ProductAssets productAssets = new ProductAssets();
+                productAssets.setAsset(asset);
+                productAssets.setType(assetRequest.getType());
+                productAssets.setIsDeleted(false);
+                productAssets.setIsPrimary(assetRequest.getIsPrimary());
+                productAssetsList.add(productAssets);
+            }
+            product.setAdditionalAssets(productAssetsRepository.saveAll(productAssetsList));
+        }
+
+        if (request.getPrimaryAsset() != null) {
+            CreateProductAssetRequest primaryAssetRequest = request.getPrimaryAsset();
+            Optional<Asset> assetOptional = assetRepository.findById(primaryAssetRequest.getId());
+            if (assetOptional.isEmpty()) {
+                throw new RuntimeException("Asset not found with id " + primaryAssetRequest.getId());
+            }
+            var asset = assetOptional.get();
+            ProductAssets productPrimaryAsset = new ProductAssets();
+            productPrimaryAsset.setAsset(asset);
+            productPrimaryAsset.setType(primaryAssetRequest.getType());
+            productPrimaryAsset.setIsDeleted(false);
+            productPrimaryAsset.setIsPrimary(primaryAssetRequest.getIsPrimary());
+            product.setPrimaryAsset(productPrimaryAsset);
+            product.setPrimaryAsset(productAssetsRepository.save(productPrimaryAsset));
+
+        }
+        Product productSaved = productRepository.save(product);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(productSaved);
     }
 
     @PutMapping("/{id}")

@@ -14,6 +14,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
+@CrossOrigin(originPatterns = {"*"}, allowCredentials = "true", allowedHeaders = "*")
 public class CategoryController {
 
     private final CategoryRepository categoryRepository;

@@ -28,5 +28,6 @@ public class CreateProductRequest {
     private List<ProductAttribute> attributes;
     private Set<CreateProductVariantRequest> variants;
     private Set<CreateProductVariantOptionRequest> variantOptions;
-    private Set<CreateProductAssetRequest> productAssets;
+    private Set<CreateProductAssetRequest> additionalAssets;
+    private CreateProductAssetRequest primaryAsset;
 }

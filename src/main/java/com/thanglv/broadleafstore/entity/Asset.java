@@ -1,6 +1,7 @@
 package com.thanglv.broadleafstore.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 public class Asset {
 
-    @MongoId
+    @Id
     private String id;
 
     private String name;
@@ -22,5 +23,7 @@ public class Asset {
     private String localPath;
     private Boolean isDeleted;
     private LocalDateTime createdAt;
+    private String createdBy;
     private LocalDateTime updatedAt;
+    private String updatedBy;
 }

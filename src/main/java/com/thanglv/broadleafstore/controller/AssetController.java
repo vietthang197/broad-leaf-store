@@ -20,6 +20,7 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/api/v1/asset")
 @RequiredArgsConstructor
+@CrossOrigin(originPatterns = {"*"}, allowCredentials = "true", allowedHeaders = "*")
 public class AssetController {
 
     private final AssetService assetService;
