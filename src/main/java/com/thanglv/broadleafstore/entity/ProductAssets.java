@@ -27,7 +27,6 @@ public class ProductAssets {
     private Boolean isPrimary;
     private String altText;
     private List<String> tags;
-    private Boolean isDeleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

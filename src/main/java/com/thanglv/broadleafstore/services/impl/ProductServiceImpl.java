@@ -7,6 +7,7 @@ import com.thanglv.broadleafstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -116,7 +117,7 @@ public class ProductServiceImpl implements ProductService {
 
 
         if (CollectionUtils.isNotEmpty(request.getAdditionalAssets())) {
-            Set<CreateProductAssetRequest> assetRequests = request.getAdditionalAssets();
+            List<CreateProductAssetRequest> assetRequests = request.getAdditionalAssets();
             List<ProductAssets> productAssetsList = new ArrayList<>();
             for (CreateProductAssetRequest assetRequest : assetRequests) {
                 Optional<Asset> assetOptional = assetRepository.findById(assetRequest.getAsset().getId());
@@ -127,7 +128,6 @@ public class ProductServiceImpl implements ProductService {
                 ProductAssets productAssets = new ProductAssets();
                 productAssets.setAsset(asset);
                 productAssets.setType(assetRequest.getType());
-                productAssets.setIsDeleted(false);
                 productAssets.setIsPrimary(assetRequest.getIsPrimary());
                 productAssets.setAltText(assetRequest.getAltText());
                 productAssets.setTags(assetRequest.getTags());
@@ -147,7 +147,6 @@ public class ProductServiceImpl implements ProductService {
             ProductAssets productPrimaryAsset = new ProductAssets();
             productPrimaryAsset.setAsset(asset);
             productPrimaryAsset.setType(primaryAssetRequest.getType());
-            productPrimaryAsset.setIsDeleted(false);
             productPrimaryAsset.setIsPrimary(primaryAssetRequest.getIsPrimary());
             productPrimaryAsset.setAltText(primaryAssetRequest.getAltText());
             productPrimaryAsset.setTags(primaryAssetRequest.getTags());
@@ -189,6 +188,96 @@ public class ProductServiceImpl implements ProductService {
         product.setCreatedAt(LocalDateTime.now());
 
         //  update variant
-        return null;
+        if (CollectionUtils.isNotEmpty(request.getAdditionalAssets())) {
+            List<ProductAssets> existsAddtionalAssets = product.getAdditionalAssets();
+            Map<String, ProductAssets> existsAdditionalAssetsMap = existsAddtionalAssets.stream().collect(Collectors.toMap(
+                    ProductAssets::getId, value -> value, (k1, k2) -> k2
+            ));
+
+            List<CreateProductAssetRequest> assetRequests = request.getAdditionalAssets();
+            List<CreateProductAssetRequest> newAddtionalAssets = assetRequests.stream()
+                    .filter(item -> StringUtils.isBlank(item.getId()))
+                    .toList();
+
+            List<ProductAssets> newProductAssetsList = new ArrayList<>();
+            for (CreateProductAssetRequest assetRequest : newAddtionalAssets) {
+                Optional<Asset> assetOptional = assetRepository.findById(assetRequest.getAsset().getId());
+                if (assetOptional.isEmpty()) {
+                    throw new RuntimeException("Asset not found with id " + assetRequest.getAsset().getId());
+                }
+                var asset = assetOptional.get();
+                ProductAssets productAssets = new ProductAssets();
+                productAssets.setAsset(asset);
+                productAssets.setType(assetRequest.getType());
+                productAssets.setIsPrimary(assetRequest.getIsPrimary());
+                productAssets.setAltText(assetRequest.getAltText());
+                productAssets.setTags(assetRequest.getTags());
+                productAssets.setCreatedAt(LocalDateTime.now());
+                newProductAssetsList.add(productAssets);
+            }
+            List<ProductAssets> savedNewProductAssets = productAssetsRepository.saveAll(newProductAssetsList);
+
+            List<ProductAssets> totalAssets = new ArrayList<>(savedNewProductAssets);
+
+            List<CreateProductAssetRequest> updatedAssetRequestList = request.getAdditionalAssets().stream()
+                    .filter(item -> StringUtils.isNotBlank(item.getId()))
+                    .toList();
+            List<ProductAssets> updateExistsProductAssets = new ArrayList<>();
+            for (CreateProductAssetRequest updateAssetRequest : updatedAssetRequestList) {
+                Optional<ProductAssets> productAssetsOptional = productAssetsRepository.findById(updateAssetRequest.getId());
+                if (productAssetsOptional.isEmpty()) {
+                    throw new RuntimeException("Product Asset not found with id " + updateAssetRequest.getId());
+                }
+                var productAssets = productAssetsOptional.get();
+                productAssets.setAltText(updateAssetRequest.getAltText());
+                productAssets.setTags(updateAssetRequest.getTags());
+                productAssets.setUpdatedAt(LocalDateTime.now());
+                updateExistsProductAssets.add(productAssets);
+            }
+            totalAssets.addAll(productAssetsRepository.saveAll(updateExistsProductAssets));
+
+
+            List<ProductAssets> removedProductAssets = new ArrayList<>();
+            for (ProductAssets productAssets : existsAddtionalAssets) {
+                if (!existsAdditionalAssetsMap.containsKey(productAssets.getId())) {
+                    removedProductAssets.add(productAssets);
+                }
+            }
+            productAssetsRepository.deleteAll(removedProductAssets);
+            product.setAdditionalAssets(totalAssets);
+        } else {
+            productAssetsRepository.deleteAll(product.getAdditionalAssets());
+            product.setAdditionalAssets(new ArrayList<>());
+        }
+
+        ProductAssets existsPrimaryAsset = product.getPrimaryAsset();
+        if (request.getPrimaryAsset() != null) {
+            CreateProductAssetRequest primaryAssetRequest = request.getPrimaryAsset();
+            if (StringUtils.isBlank(primaryAssetRequest.getId())) {
+                Optional<Asset> assetOptional = assetRepository.findById(primaryAssetRequest.getAsset().getId());
+                if (assetOptional.isEmpty()) {
+                    throw new RuntimeException("Asset not found with id " + primaryAssetRequest.getAsset().getId());
+                }
+                var asset = assetOptional.get();
+                ProductAssets productPrimaryAsset = new ProductAssets();
+                productPrimaryAsset.setAsset(asset);
+                productPrimaryAsset.setType(primaryAssetRequest.getType());
+                productPrimaryAsset.setIsPrimary(primaryAssetRequest.getIsPrimary());
+                productPrimaryAsset.setAltText(primaryAssetRequest.getAltText());
+                productPrimaryAsset.setTags(primaryAssetRequest.getTags());
+                productPrimaryAsset.setCreatedAt(LocalDateTime.now());
+                product.setPrimaryAsset(productAssetsRepository.save(productPrimaryAsset));
+                productAssetsRepository.delete(existsPrimaryAsset);
+            } else {
+                existsPrimaryAsset.setAltText(primaryAssetRequest.getAltText());
+                existsPrimaryAsset.setTags(primaryAssetRequest.getTags());
+                existsPrimaryAsset.setUpdatedAt(LocalDateTime.now());
+            }
+        } else {
+            productAssetsRepository.delete(existsPrimaryAsset);
+        }
+
+        product = productRepository.save(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 }

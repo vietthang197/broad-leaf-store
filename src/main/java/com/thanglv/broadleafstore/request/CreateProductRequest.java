@@ -26,8 +26,8 @@ public class CreateProductRequest {
     private String category;
     private String productType;
     private List<ProductAttribute> attributes;
-    private Set<CreateProductVariantRequest> variants;
-    private Set<CreateProductVariantOptionRequest> variantOptions;
-    private Set<CreateProductAssetRequest> additionalAssets;
+    private List<CreateProductVariantRequest> variants;
+    private List<CreateProductVariantOptionRequest> variantOptions;
+    private List<CreateProductAssetRequest> additionalAssets;
     private CreateProductAssetRequest primaryAsset;
 }
