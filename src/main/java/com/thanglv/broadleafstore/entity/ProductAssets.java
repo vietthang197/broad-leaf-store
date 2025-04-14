@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,14 +20,14 @@ public class ProductAssets {
 
     @Id
     private String id;
-
     @DocumentReference
     @Indexed
     private Asset asset;
-
     private String type;
-
     private Boolean isPrimary;
-
+    private String altText;
+    private List<String> tags;
     private Boolean isDeleted;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

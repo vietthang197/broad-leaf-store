@@ -2,10 +2,7 @@ package com.thanglv.broadleafstore.controller;
 
 import com.thanglv.broadleafstore.entity.*;
 import com.thanglv.broadleafstore.repository.*;
-import com.thanglv.broadleafstore.request.CreateProductAssetRequest;
-import com.thanglv.broadleafstore.request.CreateProductRequest;
-import com.thanglv.broadleafstore.request.CreateProductVariantOptionRequest;
-import com.thanglv.broadleafstore.request.CreateProductVariantRequest;
+import com.thanglv.broadleafstore.request.*;
 import com.thanglv.broadleafstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;

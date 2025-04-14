@@ -1,6 +1,7 @@
 package com.thanglv.broadleafstore.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.thanglv.broadleafstore.entity.Asset;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,7 @@ public class CreateProductAssetRequest {
     private String id;
     private Boolean isPrimary;
     private String type;
-    private String title;
     private String altText;
     private List<String> tags;
+    private CreateAssetRequest asset;
 }
