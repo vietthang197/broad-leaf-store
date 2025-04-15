@@ -1,15 +1,15 @@
 package com.thanglv.broadleafstore.controller.catalog;
 
+import com.thanglv.broadleafstore.dto.PaginationDto;
 import com.thanglv.broadleafstore.entity.*;
 import com.thanglv.broadleafstore.repository.*;
 import com.thanglv.broadleafstore.request.*;
 import com.thanglv.broadleafstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -21,8 +21,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAll() {
-        return ResponseEntity.ok(productRepository.findAllByOrderByCreatedAtDesc());
+    public ResponseEntity<PaginationDto<Product>> getAll(ProductSearchRequest request) {
+        PaginationDto<Product> products = productService.searchProducts(request);
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")

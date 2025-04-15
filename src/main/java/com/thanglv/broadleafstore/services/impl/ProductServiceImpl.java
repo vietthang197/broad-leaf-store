@@ -1,5 +1,6 @@
 package com.thanglv.broadleafstore.services.impl;
 
+import com.thanglv.broadleafstore.dto.PaginationDto;
 import com.thanglv.broadleafstore.dto.ProductDto;
 import com.thanglv.broadleafstore.entity.*;
 import com.thanglv.broadleafstore.mapper.ProductMapper;
@@ -10,7 +11,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,6 +41,7 @@ public class ProductServiceImpl implements ProductService {
     private final AssetRepository assetRepository;
     private final ProductAssetsRepository productAssetsRepository;
     private final ProductMapper productMapper;
+    private final MongoTemplate mongoTemplate;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -288,5 +296,41 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ResponseEntity<List<ProductDto>> getPopularProduct() {
         return ResponseEntity.ok(productRepository.findAllByOrderByCreatedAtDesc(Pageable.ofSize(10)).getContent().stream().map(productMapper::toDto).collect(Collectors.toList()));
+    }
+
+    @Override
+    public PaginationDto<Product> searchProducts(ProductSearchRequest request) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Query query = new Query().with(pageable);
+
+        if (request.getName() != null && !request.getName().isEmpty()) {
+            query.addCriteria(Criteria.where("name").regex(request.getName(), "i"));
+        }
+
+        if (request.getSku() != null && !request.getSku().isEmpty()) {
+            query.addCriteria(Criteria.where("sku").regex(request.getSku(), "i"));
+        }
+
+        if (request.getCategory() != null && !request.getCategory().isEmpty()) {
+            query.addCriteria(Criteria.where("category").is(request.getCategory()));
+        }
+
+        if (request.getAvailableOnline() != null) {
+            query.addCriteria(Criteria.where("availableOnline").is(request.getAvailableOnline()));
+        }
+
+        List<Product> products = mongoTemplate.find(query, Product.class);
+        long count = mongoTemplate.count(query.skip(-1).limit(-1), Product.class);
+
+        Page<Product> productPage = PageableExecutionUtils.getPage(products, pageable, () -> count);
+        PaginationDto<Product> productPaginationDto = new PaginationDto<>();
+        productPaginationDto.setContent(productPage.getContent());
+        PaginationDto.PageInfo pageInfo = new PaginationDto.PageInfo();
+        pageInfo.setTotalPages(productPage.getTotalPages());
+        pageInfo.setTotalElements(productPage.getTotalElements());
+        pageInfo.setSize(productPage.getSize());
+        pageInfo.setNumber(productPage.getNumber());
+        productPaginationDto.setPageInfo(pageInfo);
+        return productPaginationDto;
     }
 }
