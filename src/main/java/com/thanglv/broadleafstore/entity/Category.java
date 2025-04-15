@@ -4,7 +4,7 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.MongoId;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.LocalDateTime;
 
@@ -25,4 +25,7 @@ public class Category {
     private String parentCategoryId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @DocumentReference
+    private Asset asset;
 }
