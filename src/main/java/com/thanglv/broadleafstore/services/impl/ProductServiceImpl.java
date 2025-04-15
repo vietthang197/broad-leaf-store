@@ -1,6 +1,8 @@
 package com.thanglv.broadleafstore.services.impl;
 
+import com.thanglv.broadleafstore.dto.ProductDto;
 import com.thanglv.broadleafstore.entity.*;
+import com.thanglv.broadleafstore.mapper.ProductMapper;
 import com.thanglv.broadleafstore.repository.*;
 import com.thanglv.broadleafstore.request.*;
 import com.thanglv.broadleafstore.services.ProductService;
@@ -8,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductOptionValueRepository productOptionValueRepository;
     private final AssetRepository assetRepository;
     private final ProductAssetsRepository productAssetsRepository;
+    private final ProductMapper productMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -279,5 +283,10 @@ public class ProductServiceImpl implements ProductService {
 
         product = productRepository.save(product);
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
+    }
+
+    @Override
+    public ResponseEntity<List<ProductDto>> getPopularProduct() {
+        return ResponseEntity.ok(productRepository.findAllByOrderByCreatedAtDesc(Pageable.ofSize(10)).getContent().stream().map(productMapper::toDto).collect(Collectors.toList()));
     }
 }

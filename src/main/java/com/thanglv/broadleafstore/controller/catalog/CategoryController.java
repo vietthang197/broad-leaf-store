@@ -1,4 +1,4 @@
-package com.thanglv.broadleafstore.controller;
+package com.thanglv.broadleafstore.controller.catalog;
 
 import com.thanglv.broadleafstore.entity.Category;
 import com.thanglv.broadleafstore.repository.CategoryRepository;

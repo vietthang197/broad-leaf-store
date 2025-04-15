@@ -1,4 +1,4 @@
-package com.thanglv.broadleafstore.controller;
+package com.thanglv.broadleafstore.controller.catalog;
 
 import com.thanglv.broadleafstore.dto.AssetsDto;
 import com.thanglv.broadleafstore.dto.BaseResponse;

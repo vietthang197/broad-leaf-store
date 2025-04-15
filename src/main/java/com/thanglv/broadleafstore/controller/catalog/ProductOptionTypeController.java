@@ -1,4 +1,4 @@
-package com.thanglv.broadleafstore.controller;
+package com.thanglv.broadleafstore.controller.catalog;
 
 import com.thanglv.broadleafstore.entity.ProductOptionType;
 import com.thanglv.broadleafstore.repository.ProductOptionTypeRepository;

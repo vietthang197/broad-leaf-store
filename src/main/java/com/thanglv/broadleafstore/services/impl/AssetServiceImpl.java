@@ -72,6 +72,7 @@ public class AssetServiceImpl implements AssetService {
             asset.setSize(file.getSize());
             asset.setLocalPath(fileLocalPath);
             asset.setIsDeleted(false);
+            asset.setContentType(file.getContentType());
             assetRepository.save(asset);
             return BaseResponse.ok(assetsMapper.toDto(asset));
         } catch (IOException e) {

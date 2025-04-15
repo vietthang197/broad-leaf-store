@@ -1,19 +1,15 @@
-package com.thanglv.broadleafstore.controller;
+package com.thanglv.broadleafstore.controller.catalog;
 
 import com.thanglv.broadleafstore.entity.*;
 import com.thanglv.broadleafstore.repository.*;
 import com.thanglv.broadleafstore.request.*;
 import com.thanglv.broadleafstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -25,8 +21,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<Product> getAll() {
-        return productRepository.findAllByOrderByCreatedAtDesc();
+    public ResponseEntity<List<Product>> getAll() {
+        return ResponseEntity.ok(productRepository.findAllByOrderByCreatedAtDesc());
     }
 
     @GetMapping("/{id}")
