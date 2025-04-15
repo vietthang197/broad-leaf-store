@@ -197,7 +197,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category);
         product.setAttributes(request.getAttributes());
         product.setSku(request.getSku());
-        product.setCreatedAt(LocalDateTime.now());
+        product.setUpdatedAt(LocalDateTime.now());
 
         //  update variant
         if (CollectionUtils.isNotEmpty(request.getAdditionalAssets())) {
