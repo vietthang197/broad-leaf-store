@@ -295,7 +295,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<List<ProductDto>> getPopularProduct() {
-        return ResponseEntity.ok(productRepository.findAllByOrderByCreatedAtDesc(Pageable.ofSize(10)).getContent().stream().map(productMapper::toDto).collect(Collectors.toList()));
+        return ResponseEntity.ok(
+                productRepository.findAllByAvailableOnlineOrderByCreatedAtDesc(true, Pageable.ofSize(10))
+                .getContent()
+                .stream()
+                .map(productMapper::toDto)
+                .collect(Collectors.toList())
+        );
     }
 
     @Override
