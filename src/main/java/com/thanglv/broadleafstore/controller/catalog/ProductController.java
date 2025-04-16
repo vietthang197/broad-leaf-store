@@ -6,7 +6,6 @@ import com.thanglv.broadleafstore.repository.*;
 import com.thanglv.broadleafstore.request.*;
 import com.thanglv.broadleafstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
