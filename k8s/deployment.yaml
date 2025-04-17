@@ -1,3 +1,30 @@
+# PersistentVolume để lưu data
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: broad-leaf-store-pv
+  namespace: default
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  hostPath:
+    path: /data/broad-leaf-store
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: broad-leaf-store-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi # Điều chỉnh dung lượng cần thiết cho /data/configdb
+  storageClassName: standard # Đảm bảo giống hoặc phù hợp với PVC trên
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
