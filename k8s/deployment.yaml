@@ -54,6 +54,13 @@ spec:
             requests:
               memory: "512Mi"
               cpu: "500m"
+          volumeMounts:
+            - name: broad-leaf-store-data
+              mountPath: /data/broad-leaf-store
+      volumes:
+        - name: broad-leaf-store-data
+          persistentVolumeClaim:
+            claimName: broad-leaf-store-pvc
 ---
 apiVersion: v1
 kind: Service
