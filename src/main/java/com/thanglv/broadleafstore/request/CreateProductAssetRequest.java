@@ -1,7 +1,6 @@
 package com.thanglv.broadleafstore.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.thanglv.broadleafstore.entity.Asset;
 import lombok.Getter;
 import lombok.Setter;
 

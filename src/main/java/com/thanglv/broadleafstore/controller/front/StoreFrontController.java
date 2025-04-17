@@ -1,7 +1,6 @@
 package com.thanglv.broadleafstore.controller.front;
 
 import com.thanglv.broadleafstore.dto.ProductDto;
-import com.thanglv.broadleafstore.entity.Product;
 import com.thanglv.broadleafstore.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
