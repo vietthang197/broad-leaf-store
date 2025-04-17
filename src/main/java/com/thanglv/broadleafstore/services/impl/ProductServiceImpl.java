@@ -318,7 +318,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         if (request.getCategory() != null && !request.getCategory().isEmpty()) {
-            query.addCriteria(Criteria.where("category").is(request.getCategory()));
+            query.addCriteria(Criteria.where("category.id").is(request.getCategory()));
         }
 
         if (request.getAvailableOnline() != null) {
