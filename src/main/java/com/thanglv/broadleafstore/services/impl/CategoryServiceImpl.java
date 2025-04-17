@@ -1,7 +1,9 @@
 package com.thanglv.broadleafstore.services.impl;
 
 import com.thanglv.broadleafstore.dto.PaginationDto;
+import com.thanglv.broadleafstore.entity.Asset;
 import com.thanglv.broadleafstore.entity.Category;
+import com.thanglv.broadleafstore.repository.AssetRepository;
 import com.thanglv.broadleafstore.repository.CategoryRepository;
 import com.thanglv.broadleafstore.request.CategorySearchRequest;
 import com.thanglv.broadleafstore.request.CreateCategoryRequest;
@@ -26,6 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final MongoTemplate mongoTemplate;
+    private final AssetRepository assetRepository;
 
     @Override
     public List<Category> getAllCategories() {
@@ -45,6 +48,13 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(request.getName());
         category.setSlug(request.getSlug());
         category.setDescription(request.getDescription());
+
+        Optional<Asset> assetOptional = assetRepository.findById(request.getAsset().getId());
+        if (assetOptional.isEmpty()) {
+            throw new RuntimeException("Asset not found");
+        }
+        Asset asset = assetOptional.get();
+        category.setAsset(asset);
 
         if (Strings.isNotBlank(request.getParentCategoryId())) {
             Optional<Category> parentCategoryOptional = categoryRepository.findById(request.getParentCategoryId());

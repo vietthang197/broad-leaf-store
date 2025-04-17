@@ -10,4 +10,5 @@ public class CreateCategoryRequest {
     private String slug;
     private String description;
     private String parentCategoryId;
+    private CreateAssetRequest asset;
 }
