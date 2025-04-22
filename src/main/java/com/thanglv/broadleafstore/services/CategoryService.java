@@ -15,7 +15,7 @@ public interface CategoryService {
     
     Category createCategory(CreateCategoryRequest request);
     
-    ResponseEntity<Category> updateCategory(String id, Category updatedCategory);
+    ResponseEntity<Category> updateCategory(String id, CreateCategoryRequest request);
     
     ResponseEntity<Void> deleteCategory(String id);
     

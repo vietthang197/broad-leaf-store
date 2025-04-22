@@ -22,7 +22,9 @@ public class Category {
     @Indexed(unique = true)
     private String slug;
     private String description;
-    private String parentCategoryId;
+
+    @DocumentReference
+    private Category parentCategory;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

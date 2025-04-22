@@ -20,6 +20,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -48,6 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(request.getName());
         category.setSlug(request.getSlug());
         category.setDescription(request.getDescription());
+        category.setCreatedAt(LocalDateTime.now());
 
         Optional<Asset> assetOptional = assetRepository.findById(request.getAsset().getId());
         if (assetOptional.isEmpty()) {
@@ -70,29 +72,42 @@ public class CategoryServiceImpl implements CategoryService {
                 throw new RuntimeException("Cannot set parent: would create a circular reference");
             }
             
-            category.setParentCategoryId(parentCategoryOptional.get().getId());
+            category.setParentCategory(parentCategoryOptional.get());
             return categoryRepository.save(category);
         }
         return categoryRepository.save(category);
     }
 
     @Override
-    public ResponseEntity<Category> updateCategory(String id, Category updatedCategory) {
+    public ResponseEntity<Category> updateCategory(String id, CreateCategoryRequest request) {
         return categoryRepository.findById(id)
                 .map(category -> {
                     // Nếu đang cập nhật parentCategoryId
-                    if (updatedCategory.getParentCategoryId() != null) {
+                    if (request.getParentCategoryId() != null) {
                         // Kiểm tra vòng tròn parent-child
-                        if (wouldCreateCycle(id, updatedCategory.getParentCategoryId())) {
+                        if (wouldCreateCycle(id, request.getParentCategoryId())) {
                             throw new RuntimeException("Cannot set parent: would create a circular reference");
                         }
                     }
-                    
-                    category.setName(updatedCategory.getName());
-                    category.setSlug(updatedCategory.getSlug());
-                    category.setDescription(updatedCategory.getDescription());
-                    category.setParentCategoryId(updatedCategory.getParentCategoryId());
-                    category.setUpdatedAt(updatedCategory.getUpdatedAt());
+                    Optional<Asset> assetOptional = assetRepository.findById(request.getAsset().getId());
+                    if (assetOptional.isEmpty()) {
+                        throw new RuntimeException("Asset not found");
+                    }
+                    Asset asset = assetOptional.get();
+                    category.setAsset(asset);
+
+                    category.setName(request.getName());
+                    category.setSlug(request.getSlug());
+                    category.setDescription(request.getDescription());
+
+                    if (Strings.isNotBlank(request.getParentCategoryId())) {
+                        Optional<Category> parentCategoryOptional = categoryRepository.findById(request.getParentCategoryId());
+                        if (parentCategoryOptional.isEmpty()) {
+                            throw new RuntimeException("Parent category not found");
+                        }
+                        category.setParentCategory(parentCategoryOptional.get());
+                    }
+                    category.setUpdatedAt(LocalDateTime.now());
                     return ResponseEntity.ok(categoryRepository.save(category));
                 })
                 .orElse(ResponseEntity.notFound().build());
