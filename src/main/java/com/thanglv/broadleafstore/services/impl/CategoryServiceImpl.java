@@ -3,8 +3,10 @@ package com.thanglv.broadleafstore.services.impl;
 import com.thanglv.broadleafstore.dto.PaginationDto;
 import com.thanglv.broadleafstore.entity.Asset;
 import com.thanglv.broadleafstore.entity.Category;
+import com.thanglv.broadleafstore.entity.Product;
 import com.thanglv.broadleafstore.repository.AssetRepository;
 import com.thanglv.broadleafstore.repository.CategoryRepository;
+import com.thanglv.broadleafstore.repository.ProductRepository;
 import com.thanglv.broadleafstore.request.CategorySearchRequest;
 import com.thanglv.broadleafstore.request.CreateCategoryRequest;
 import com.thanglv.broadleafstore.services.CategoryService;
@@ -30,6 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final MongoTemplate mongoTemplate;
     private final AssetRepository assetRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public List<Category> getAllCategories() {
@@ -115,11 +118,27 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ResponseEntity<Void> deleteCategory(String id) {
-        if (categoryRepository.existsById(id)) {
-            categoryRepository.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if (!categoryRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        
+        // Kiểm tra xem có sản phẩm nào đang sử dụng danh mục này không
+        // Sử dụng Spring Data MongoDB Repository với phương thức tùy chỉnh
+        long productCount = productRepository.countByCategoryId(id);
+
+        if (productCount > 0) {
+            throw new RuntimeException("Cannot delete category: it is being used by " + productCount + " product(s)");
+        }
+
+        // Kiểm tra xem có danh mục con nào không
+        Optional<Category> parentCategoryOptional = categoryRepository.findByParentCategoryId(id);
+
+        if (parentCategoryOptional.isPresent()) {
+            throw new RuntimeException("Cannot delete category: it has child categories");
+        }
+
+//        categoryRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     /**
